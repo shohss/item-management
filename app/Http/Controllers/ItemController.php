@@ -21,15 +21,32 @@ class ItemController extends Controller
     /**
      * 商品一覧
      */
-    public function index()
+    public function index(Request $request)
     {
+        //検索で入力された値を取得
+        $keyword = $request->input('keyword');
+        //ソート機能追加
+        $sortBy = $request->input('sort');
+        $direction = $request->input('direction');
         // 商品一覧取得
         $items = Item
             ::where('items.status', 'active')
             ->select()
             ->get();
+        $query = Item::query();
 
-        return view('item.index', compact('items'));
+        if(!empty($keyword)) {
+            $query->where('name','Like','%'.$keyword.'%')
+            ->orWhere('detail','Like','%'.$keyword.'%');
+        }
+        //もしソートのデータが送信されたら
+        if(!empty($sortBy)){
+            $orderBy = $direction ? $direction : 'asc';
+            $query->orderBy($sortBy,$orderBy );
+        }
+
+        $items = $query->paginate(10);
+        return view('item.index', compact('items','keyword'));
     }
 
     /**
