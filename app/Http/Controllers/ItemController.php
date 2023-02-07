@@ -74,4 +74,52 @@ class ItemController extends Controller
 
         return view('item.add');
     }
+
+    /**
+     * Show the form for editing the specified resource.
+     *指定されたリソースを編集するためのフォームを表示します
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($item_id)
+    {
+        // 一覧から限定されたIDと同じIDのレコードを取得する。
+        $item = Item::where('id' , '=' , $item_id)->first();
+        return view('edit')->with([
+                'item' => $item
+            ]);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *ストレージ内の指定されたリソースを更新します。
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request,$item_id)
+    {
+        // 既存のレコードを習得して、編集してから保存する
+        $items = Item::where('id' , '=' , $item_id)->first();
+        $items->name = $request->name;
+        $items->type = $request->type;
+        $items->detail = $request->detail;
+        $items->save();
+
+        return redirect()->route('item.index');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *指定されたリソースをストレージから削除します。
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($item_id)
+    {
+        // 既存のレコードを習得して、削除する
+        $item = Item::where('id' , '=' , $item_id)->first();
+        $item->delete();
+        return redirect()->route('item.index');
+    }
 }
